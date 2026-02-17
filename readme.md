@@ -1,38 +1,35 @@
-# 🏛️ Active Directory Lab Automation (Infra-as-Code)
+# 🏛️ Active Directory Lab Automation: High Availability & Replication
 
-Este repositório contém um conjunto de scripts **PowerShell** desenvolvidos para automatizar a criação e configuração de um ambiente de domínio (Active Directory) do zero. Ideal para profissionais de TI que precisam de agilidade na montagem de laboratórios de teste ou ambientes de desenvolvimento.
+Este repositório contém uma solução completa em **PowerShell** para o provisionamento automatizado de uma infraestrutura de Active Directory resiliente. O projeto foca na criação de uma floresta robusta com **replicação de Domain Controllers (DCs)**, eliminando pontos únicos de falha.
 
-## 🎯 Objetivo do Projeto
-Demonstrar como a mentalidade de **SRE** e a automação de infraestrutura podem ser aplicadas desde a base. Em vez de realizar dezenas de cliques no Server Manager, utilizamos scripts para garantir um **Domain Controller (DC)** configurado de forma idêntica e rápida.
+## 🎯 Visão do Projeto (Mentalidade SRE)
+Em ambientes de missão crítica, a disponibilidade do Active Directory é vital. Este toolkit aplica conceitos de **Redundância e Site Reliability Engineering (SRE)** para garantir que a autenticação e a resolução de nomes (DNS) permaneçam activas, mesmo em caso de falha de um dos nós.
 
 ---
 
 ## 📂 Conteúdo do Toolkit
 
-O processo é dividido em três etapas lógicas para facilitar o aprendizado e a execução:
+O fluxo de automação está dividido em etapas lógicas para suportar uma topologia de dois ou mais servidores:
 
-1. **[01-Install-ADDS-Role.ps1](./01-Install-ADDS-Role.ps1)**: Prepara o Windows Server instalando os binários necessários para o serviço de domínio e as ferramentas de RSAT.
-2. **[02-Deploy-NewForest.ps1](./02-Deploy-NewForest.ps1)**: Promove o servidor a Domain Controller, criando uma nova floresta com parâmetros de segurança e caminhos de banco de dados (NTDS) padronizados.
-3. **[03-Initial-Setup-Lab.ps1](./03-Initial-Setup-Lab.ps1)**: (Opcional) Cria a estrutura inicial de Unidades Organizacionais (OUs), Grupos e Usuários de teste para começar os trabalhos imediatamente.
+1. **[01-Install-ADDS-Role.ps1](./01-Install-ADDS-Role.ps1)**: Instalação dos binários do AD DS e ferramentas de gestão em todos os servidores.
+2. **[02-Deploy-NewForest.ps1](./02-Deploy-NewForest.ps1)**: Promoção do primeiro servidor (DC01) e criação da nova floresta.
+3. **[03-Add-ReplicaDC.ps1](./03-Add-ReplicaDC.ps1)**: Promoção do segundo servidor (DC02) como réplica, estabelecendo a redundância do domínio.
+4. **[04-Initial-Setup-Lab.ps1](./04-Initial-Setup-Lab.ps1)**: Configuração de OUs, Grupos e Utilizadores para o laboratório.
 
 ---
 
-## 🚀 Como Utilizar
+## 🚀 Guia de Implementação (Passo a Passo)
 
-### 1. Pré-requisitos
-* Um Windows Server (2016, 2019 ou 2022) recém-instalado.
-* Endereço IP estático configurado no servidor.
-* Executar o PowerShell como Administrador.
+### Cenário Sugerido:
+* **Servidor 01 (DC01):** IP Estático configurado.
+* **Servidor 02 (DC02):** IP Estático configurado, apontando o DNS primário para o IP do Servidor 01.
 
-### 2. Passo a Passo
-Clone o repositório e execute os scripts na ordem numérica:
+### Execução:
 
+#### No Servidor 01 (Criação da Floresta):
 ```powershell
-# Etapa 1: Instalação dos binários
+# Instalar binarização
 .\01-Install-ADDS-Role.ps1
 
-# Etapa 2: Promoção do Domínio (O servidor irá reiniciar automaticamente)
+# Criar a nova floresta
 .\02-Deploy-NewForest.ps1 -DomainName "lab.local" -NetbiosName "LAB"
-
-# Etapa 3: (Após o reboot) Criação de OUs e Usuários
-.\03-Initial-Setup-Lab.ps1
